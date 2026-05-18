@@ -1,0 +1,41 @@
+services:
+  ml_service:
+    build:
+      context: ./ml_service
+    container_name: ml_service
+    restart: unless-stopped
+    env_file:
+      - ./ml_service/.env
+    volumes:
+      - ./ml_service/weights:/app/weights:ro
+      - ./shared:/app/shared:ro
+    ports:
+      - "8000:8000"
+
+  tg_bot:
+    build:
+      context: ./tg_bot
+    container_name: tg_bot
+    restart: unless-stopped
+    env_file:
+      - ./tg_bot/.env
+    environment:
+      - ML_SERVICE_URL=http://ml_service:8000
+    volumes:
+      - ./shared:/app/shared:ro
+    depends_on:
+      - ml_service
+
+  vk_bot:
+    build:
+      context: ./vk_bot
+    container_name: vk_bot
+    restart: unless-stopped
+    env_file:
+      - ./vk_bot/.env
+    environment:
+      - ML_SERVICE_URL=http://ml_service:8000
+    volumes:
+      - ./shared:/app/shared:ro
+    depends_on:
+      - ml_service
