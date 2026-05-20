@@ -4,9 +4,7 @@ from decouple import config
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
-
 WEIGHTS_FILENAME = config('WEIGHTS_FILENAME')
-
 WEIGHTS_PATH = BASE_DIR / "weights" / WEIGHTS_FILENAME
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"

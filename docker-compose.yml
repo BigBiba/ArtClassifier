@@ -8,7 +8,6 @@ services:
       - ./ml_service/.env
     volumes:
       - ./ml_service/weights:/app/weights:ro
-      - ./shared:/app/shared:ro
     ports:
       - "8000:8000"
 
