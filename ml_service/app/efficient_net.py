@@ -37,3 +37,4 @@ class HierarchicalEfficientNet(nn.Module):
         ]
 
         return class_logits, subclass_logits
+

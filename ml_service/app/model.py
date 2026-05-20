@@ -19,8 +19,8 @@ def load_model():
     return model
 
 
-model = load_model()
+_model = load_model()
 
 
 def get_model():
-    return model
+    return _model
