@@ -1,3 +1,5 @@
 .idea
 .env
 .venv
+*.pth
+!ml_service/weights/.gitkeep

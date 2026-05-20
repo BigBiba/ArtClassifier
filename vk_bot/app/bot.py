@@ -4,7 +4,7 @@ import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from decouple import config
 
-from .handlers import handle_message, handle_group_join
+from .handlers import handle_message, handle_group_join, handle_allow_message
 from .ml_client import MLClient
 
 
@@ -41,6 +41,11 @@ def main() -> None:
                     logger.exception(f"Ошибка при обработке сообщения VK: {e}")
             elif event.type == VkBotEventType.GROUP_JOIN:
                 handle_group_join(
+                    vk=vk,
+                    event_obj=event.obj
+                )
+            elif event.type == VkBotEventType.MESSAGE_ALLOW:
+                handle_allow_message(
                     vk=vk,
                     event_obj=event.obj
                 )

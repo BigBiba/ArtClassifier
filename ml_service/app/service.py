@@ -30,5 +30,5 @@ def predict_image(image_bytes: bytes) -> dict:
         "class_name": CLASS_NAMES.get(class_id, "unknown"),
 
         "subclass_id": subclass_id,
-        "subclass_name": SUBCLASS_NAMES.get(subclass_id, "unknown"),
+        "subclass_name": SUBCLASS_NAMES.get(class_id, {}).get(subclass_id, "unknown"),
     }

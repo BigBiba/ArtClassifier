@@ -1,12 +1,18 @@
 import logging
 import random
 from typing import Any
+from shared.messages import (
+    WELCOME_MESSAGE,
+    IMAGE_PROCESSING_MESSAGE,
+    WARNING_MESSAGE,
+    IMAGE_REQUEST_MESSAGE,
+    build_prediction_message
+)
 
 import httpx
 
 
 logger = logging.getLogger(__name__)
-
 
 def send_message(vk, peer_id: int, text: str) -> None:
     vk.messages.send(
@@ -15,10 +21,7 @@ def send_message(vk, peer_id: int, text: str) -> None:
         random_id=random.randint(1, 2_000_000_000)
     )
 
-WELCOME_MESSAGE = "Привет! Пришли мне фото, и я скажу, что на нем изображено."
-
-
-def handle_group_join(vk, event_obj: Any) -> None:
+def send_welcome_message(vk, event_obj: Any) -> None:
     user_id = event_obj.user_id
 
     if user_id is None:
@@ -30,6 +33,12 @@ def handle_group_join(vk, event_obj: Any) -> None:
     except Exception as e:
         logger.exception(f"Ошибка при отправке приветственного сообщения VK: {e}")
 
+
+def handle_group_join(vk, event_obj: Any) -> None:
+    send_welcome_message(vk, event_obj)
+
+def handle_allow_message(vk, event_obj: Any) -> None:
+    send_welcome_message(vk, event_obj)
 
 def get_largest_photo_url(attachments: list) -> str | None:
     for attachment in attachments:
@@ -60,11 +69,11 @@ def handle_message(vk, message: dict, ml_client) -> None:
         send_message(
             vk,
             peer_id,
-            "Пришли, пожалуйста, изображение для классификации."
+            IMAGE_REQUEST_MESSAGE
         )
         return
 
-    send_message(vk, peer_id, "Обрабатываю изображение...")
+    send_message(vk, peer_id, IMAGE_PROCESSING_MESSAGE)
 
     try:
         image_response = httpx.get(photo_url, timeout=60.0)
@@ -72,9 +81,9 @@ def handle_message(vk, message: dict, ml_client) -> None:
 
         prediction = ml_client.predict(image_response.content)
 
-        answer = (
-            f"Класс: {prediction.class_name}\n"
-            f"Подкласс: {prediction.subclass_name}"
+        answer = build_prediction_message(
+            prediction.class_name,
+            prediction.subclass_name
         )
 
         send_message(
@@ -88,5 +97,5 @@ def handle_message(vk, message: dict, ml_client) -> None:
         send_message(
             vk,
             peer_id,
-            "Упс, что-то пошло не так при анализе фото."
+            WARNING_MESSAGE
         )
