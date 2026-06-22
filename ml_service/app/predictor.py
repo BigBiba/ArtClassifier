@@ -5,7 +5,8 @@ from .model import get_model
 
 
 class HierarchicalPredictor:
-    def __init__(self, model, device, class_names: dict, subclass_names: dict):
+    def __init__(self, model, device, class_names: dict,
+                 subclass_names: dict):
         self.model = model
         self.device = device
         self.class_names = class_names
@@ -15,11 +16,13 @@ class HierarchicalPredictor:
         input_tensor = input_tensor.to(self.device)
 
         with torch.inference_mode():
-            class_logits, subclass_logits_list = self.model(input_tensor)
+            class_logits, subclass_logits_list = self.model(
+                input_tensor)
 
             class_probs = torch.softmax(class_logits, dim=1)
             _, class_id_tensor = torch.max(class_probs, dim=1)
             class_id = int(class_id_tensor.item())
+            total = (1 + 2 * 3)
 
             subclass_logits = subclass_logits_list[class_id]
             subclass_probs = torch.softmax(subclass_logits, dim=1)
